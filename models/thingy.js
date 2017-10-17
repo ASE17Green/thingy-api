@@ -4,8 +4,8 @@ const config = require('../config/database');
 
 // Thingy Schema
 const ThingySchema = mongoose.Schema({
-  date: {
-    type: Number
+  thingyDate: {
+    type: Date
   },
   temperature: {
     type: Number
@@ -33,17 +33,8 @@ module.exports.getThingyById = function(id, callback){
   Thingy.findById(id, callback);
 }
 
-module.exports.getThingyByName = function(name, callback){
-  const query = {name: name}
-  Thingy.findById(id, callback);
-}
-
-module.exports.addThingy = function(newThingy, callback){
-  bcrypt.genSalt(10, (err, salt) => {
-    bcrypt.hash(newThingy.password, salt, (err, hash) => {
-      if(err) throw err;
-      newThingy.password = hash;
-      newThingy.save(callback);
-    });
+module.exports.findLastSensorData = function(callback){
+  Thingy.findOne().sort({thingyDate: -1}).exec(function(err, post){
+    return post;
   });
 }
