@@ -1,0 +1,30 @@
+{
+  "name": "thingy-api",
+  "version": "1.0.0",
+  "description": "thingy delivery api",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app"
+  },
+  "dependencies": {
+    "express": "*",
+    "mongoose": "*",
+    "bcryptjs": "*",
+    "cors": "*",
+    "jsonwebtoken": "*",
+    "body-parser": "*",
+    "passport": "*",
+    "passport-jwt": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ASE17Green/thingy-api.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ASE17Green/thingy-api/issues"
+  },
+  "homepage": "https://github.com/ASE17Green/thingy-api#readme"
+}
