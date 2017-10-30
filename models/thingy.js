@@ -4,7 +4,7 @@ const config = require('../config/database');
 
 // Thingy Schema
 const ThingySchema = mongoose.Schema({
-  thingyDate: {
+  date: {
     type: Date
   },
   temperature: {
@@ -31,10 +31,4 @@ const Thingy = module.exports = mongoose.model('Thingy', ThingySchema);
 
 module.exports.getThingyById = function(id, callback){
   Thingy.findById(id, callback);
-}
-
-module.exports.findLastSensorData = function(callback){
-  Thingy.findOne().sort({thingyDate: -1}).exec(function(err, post){
-    return post;
-  });
 }

@@ -5,42 +5,37 @@ const jwt = require('jsonwebtoken');
 
 const Thingy = require('../models/thingy');
 
-// get date
-router.get('/date', (req, res) => {
-  res.send('date');
+// add data
+router.post('/data', (req, res, next) => {
+  Thingy.create(req.body, function (err, post) {
+    if (err) return next(err);
+    res.json(post);
+  });
 });
 
-// get last temperature
-router.get('/temperature', (req, res) => {
-  Thingy.findLastSensorData(function(err, thingy) {
+// delete all data
+router.delete('/datas', function(req, res, next) {
+  Thingy.remove(function (err, datas) {
+    if (err) return next(err);
+    res.json({sucess: true, msg: 'All datas deleted'});
+  });
+});
+
+// get last data
+router.get('/data', (req, res) => {
+  Thingy.findOne({}, {}, {sort:{date:-1}}, function(err, thingy) {
     if (err) throw err;
-    res.json(thingy);
-    });
+      res.json(thingy);
+  });
 });
 
-// get pressure
-router.get('/pressure', (req, res) => {
-  res.send('pressure');
+// get all data
+router.get('/datas', function(req, res, next) {
+  Thingy.find(function (err, datas) {
+    if (err) return next(err);
+    res.json(datas);
+  });
 });
 
-// get humidity
-router.get('/humidity', (req, res) => {
-  res.send('humidity');
-});
-
-// get color
-router.get('/color', (req, res) => {
-  res.send('color');
-});
-
-// get gas
-router.get('/gas', (req, res) => {
-  res.send('gas');
-});
-
-// get gravity
-router.get('/gravity', (req, res) => {
-  res.send('gravity');
-});
 
 module.exports = router;
