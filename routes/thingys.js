@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const Thingy = require('../models/thingy');
 
 // add data
-router.post('/data', (req, res, next) => {
+router.post('/data', passport.authenticate('jwt', {session:false}), (req, res, next) => {
   Thingy.create(req.body, function (err, post) {
     if (err) return next(err);
     res.json(post);
@@ -14,7 +14,7 @@ router.post('/data', (req, res, next) => {
 });
 
 // delete all data
-router.delete('/datas', function(req, res, next) {
+router.delete('/datas', passport.authenticate('jwt', {session:false}), function(req, res, next) {
   Thingy.remove(function (err, datas) {
     if (err) return next(err);
     res.json({sucess: true, msg: 'All datas deleted'});
@@ -22,7 +22,7 @@ router.delete('/datas', function(req, res, next) {
 });
 
 // get last data
-router.get('/lastdata', (req, res) => {
+router.get('/lastdata', passport.authenticate('jwt', {session:false}), (req, res) => {
   Thingy.findOne({}, {}, {sort:{date:-1}}, function(err, thingy) {
     if (err) throw err;
       res.json(thingy);
@@ -30,7 +30,7 @@ router.get('/lastdata', (req, res) => {
 });
 
 // get all data
-router.get('/data', function(req, res, next) {
+router.get('/data', passport.authenticate('jwt', {session:false}), function(req, res, next) {
   Thingy.find(function (err, datas) {
     if (err) return next(err);
     res.json(datas);

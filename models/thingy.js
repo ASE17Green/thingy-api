@@ -1,11 +1,12 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const config = require('../config/database');
+const Schema = mongoose.Schema;
 
 // Thingy Schema
 const ThingySchema = mongoose.Schema({
   user: {
-    //type: Schema.Types.ObjectId, ref: 'user'
+    type: Schema.Types.ObjectId, ref: 'User'
   },
   date: {
     type: Date

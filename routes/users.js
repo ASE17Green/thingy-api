@@ -37,6 +37,14 @@ router.delete('/:id', function(req, res, next) {
   });
 });
 
+// delete all users
+router.delete('/', function(req, res, next) {
+  User.remove(function (err, users){
+    if(err) return next(err);
+    res.json({sucess: true, msg: 'All users deleted'});
+  });
+});
+
 // authenticate
 router.post('/authenticate', (req, res, next) => {
   const name = req.body.name;
@@ -68,13 +76,9 @@ router.post('/authenticate', (req, res, next) => {
   });
 });
 
-// profile to limit authorization
+// profile function with limited authorization
 router.get('/profile', passport.authenticate('jwt', {session:false}), (req, res, next) => {
   res.json({user: req.user});
-});
-
-router.get('/thingy', passport.authenticate('jwt', {session:false}), (req, res, next) => {
-  res.json({sucess: true, msg: 'Authorized'});
 });
 
 module.exports = router;
