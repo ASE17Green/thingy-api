@@ -4,6 +4,9 @@ const config = require('../config/database');
 
 // Thingy Schema
 const ThingySchema = mongoose.Schema({
+  user: {
+    //type: Schema.Types.ObjectId, ref: 'user'
+  },
   date: {
     type: Date
   },

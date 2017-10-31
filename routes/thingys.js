@@ -22,7 +22,7 @@ router.delete('/datas', function(req, res, next) {
 });
 
 // get last data
-router.get('/data', (req, res) => {
+router.get('/lastdata', (req, res) => {
   Thingy.findOne({}, {}, {sort:{date:-1}}, function(err, thingy) {
     if (err) throw err;
       res.json(thingy);
@@ -30,7 +30,7 @@ router.get('/data', (req, res) => {
 });
 
 // get all data
-router.get('/datas', function(req, res, next) {
+router.get('/data', function(req, res, next) {
   Thingy.find(function (err, datas) {
     if (err) return next(err);
     res.json(datas);
