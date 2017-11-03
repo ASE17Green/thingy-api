@@ -36,3 +36,18 @@ const Thingy = module.exports = mongoose.model('Thingy', ThingySchema);
 module.exports.getThingyById = function(id, callback){
   Thingy.findById(id, callback);
 }
+
+module.exports.getThingysByUser = function(user, callback){
+  const query = {user: user}
+  Thingy.find(query, callback);
+}
+
+module.exports.getLastThingyByUser = function(user, callback){
+  const query = {user: user}
+  Thingy.findOne(query, callback).sort({date:-1});
+}
+
+module.exports.removeThingysOfUser = function(user, callback){
+  const query = {user: user}
+  Thingy.remove(query, callback);
+}
