@@ -22,7 +22,7 @@ router.delete('/data', passport.authenticate('jwt', {session:false}), function(r
   const user = req.user;
   Thingy.removeThingysOfUser(user, (err, datas) =>  {
     if (err) return next(err);
-    res.json({sucess: true, msg: 'All datas deleted'});
+    res.json({success: true, msg: 'All datas deleted'});
   });
 });
 

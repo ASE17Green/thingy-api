@@ -14,9 +14,9 @@ router.post('/register', (req, res, next) => {
   // add only if doesn't exits
   User.addUser(newUser, (err, user) =>{
     if(err){
-      res.json({sucess: false, msg: 'Failed to register user'});
+      res.json({success: false, msg: 'Failed to register user'});
     } else {
-      res.json({sucess: true, msg: 'User registered'});
+      res.json({success: true, msg: 'User registered'});
     }
   });
 });
@@ -33,7 +33,7 @@ router.get('/', function(req, res, next) {
 router.delete('/:id', function(req, res, next) {
   User.findByIdAndRemove(req.params.id, req.body, function (err, user) {
     if (err) return next(err);
-    res.json({sucess: true, msg: 'User deleted'});
+    res.json({success: true, msg: 'User deleted'});
   });
 });
 
@@ -41,7 +41,7 @@ router.delete('/:id', function(req, res, next) {
 router.delete('/', function(req, res, next) {
   User.remove(function (err, users){
     if(err) return next(err);
-    res.json({sucess: true, msg: 'All users deleted'});
+    res.json({success: true, msg: 'All users deleted'});
   });
 });
 
@@ -63,7 +63,7 @@ router.post('/authenticate', (req, res, next) => {
         });
         res.json({
           success: true,
-          token: 'JWT' +token,
+          token: 'JWT ' +token,
           user: {
             id: user._id,
             name: user.name
