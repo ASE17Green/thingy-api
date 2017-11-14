@@ -9,48 +9,65 @@ const User = require('../models/user');
 router.post('/register', (req, res, next) => {
   let newUser = new User({
     name: req.body.name,
-    password: req.body.password
+    email: req.body.email,
+    password: req.body.password,
+    thingys: req.body.thingys
   });
   // add only if doesn't exits
   User.addUser(newUser, (err, user) =>{
-    if(err){
-      res.json({success: false, msg: 'Failed to register user'});
+    if (err){
+      if(err.message == 'User validation failed: email: Error, e-mail already in use'){
+        res.json({success: false, msg: 'E-mail exists already'});
+      }else{
+        res.json({success: false, msg: 'Failed to register user'});
+      }
     } else {
-      res.json({success: true, msg: 'User registered'});
+      const token = jwt.sign({data: user}, config.secret, {
+        expiresIn: 604800 // 1 week
+      });
+      res.json({
+        success: true,
+        msg: 'User registered',
+        token: 'JWT ' +token,
+        user: {
+          id: user._id,
+          email: user.email
+        }
+      });
     }
   });
 });
 
-// get all users
-router.get('/', function(req, res, next) {
-  User.find(function (err, users) {
-    if (err) return next(err);
-    res.json(users);
-  });
-});
+// get all users (only for development)
+//router.get('/', function(req, res, next) {
+//  User.find(function (err, users) {
+//    if (err) return next(err);
+//    res.json(users);
+//  });
+//});
 
-// delete a user
-router.delete('/:id', function(req, res, next) {
-  User.findByIdAndRemove(req.params.id, req.body, function (err, user) {
+// delete a user (with authentication)
+router.delete('/delete', passport.authenticate('jwt', {session:false}), (req, res, next) => {
+  User.findByIdAndRemove(req.user.id, req.body, function (err, user) {
     if (err) return next(err);
     res.json({success: true, msg: 'User deleted'});
   });
 });
 
-// delete all users
-router.delete('/', function(req, res, next) {
-  User.remove(function (err, users){
-    if(err) return next(err);
-    res.json({success: true, msg: 'All users deleted'});
-  });
+// update a user (with authentication)
+router.put('/update', passport.authenticate('jwt', {session: false}), (req, res, next) => {
+    User.findByIdAndUpdate(req.user.id, req.body, function (err, user) {
+        if (err) return next(err);
+        res.json({success: true, msg: 'User updated'});
+    });
 });
 
 // authenticate
 router.post('/authenticate', (req, res, next) => {
-  const name = req.body.name;
+  const email = req.body.email;
   const password = req.body.password;
 
-  User.getUserByName(name, (err, user) => {
+  User.getUserByEMail(email, (err, user) => {
     if(err) throw err;
     if(!user){
       return res.json({success: false, msg: 'User not found'});
@@ -66,7 +83,7 @@ router.post('/authenticate', (req, res, next) => {
           token: 'JWT ' +token,
           user: {
             id: user._id,
-            name: user.name
+            email: user.email
           }
         });
       } else {

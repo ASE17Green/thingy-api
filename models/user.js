@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
+const uniqueValidator = require('mongoose-unique-validator');
 const bcrypt = require('bcryptjs');
 const config = require('../config/database');
+const Schema = mongoose.Schema;
 
 // User Schema
 const UserSchema = mongoose.Schema({
@@ -9,16 +11,20 @@ const UserSchema = mongoose.Schema({
   },
   email: {
     type: String,
-    required: true
+    required: true,
+    unique: true
   },
   password: {
     type: String,
     required: true
   },
   thingys: {
-    type: [Schema.Types.ObjectId, ref: 'Thingy']
+    type: [Schema.Types.ObjectId],
+    ref: 'Thingy'
   }
 });
+
+UserSchema.plugin(uniqueValidator, { message: 'Error, e-mail already in use' });
 
 const User = module.exports = mongoose.model('User', UserSchema);
 
@@ -26,8 +32,8 @@ module.exports.getUserById = function(id, callback){
   User.findById(id, callback);
 }
 
-module.exports.getUserByName = function(name, callback){
-  const query = {name: name}
+module.exports.getUserByEMail = function(email, callback){
+  const query = {email: email}
   User.findOne(query, callback);
 }
 

@@ -18,7 +18,7 @@ router.post('/data', passport.authenticate('jwt', {session:false}), (req, res, n
 });
 
 // delete all data of a user
-router.delete('/data', passport.authenticate('jwt', {session:false}), function(req, res, next) {
+router.delete('/deletedata', passport.authenticate('jwt', {session:false}), function(req, res, next) {
   const user = req.user;
   Thingy.removeThingysOfUser(user, (err, datas) =>  {
     if (err) return next(err);
