@@ -11,7 +11,7 @@ router.post('/register', (req, res, next) => {
     name: req.body.name,
     password: req.body.password
   });
-
+  // add only if doesn't exits
   User.addUser(newUser, (err, user) =>{
     if(err){
       res.json({sucess: false, msg: 'Failed to register user'});
