@@ -6,7 +6,8 @@ const Schema = mongoose.Schema;
 // Thingy Schema
 const ThingySchema = mongoose.Schema({
   user: {
-    type: Schema.Types.ObjectId, ref: 'User'
+    type: Schema.Types.ObjectId,
+    ref: 'User'
   },
   date: {
     type: Date
