@@ -20,6 +20,7 @@ mongoose.connection.on('error', (err) => {
 const app = express();
 
 const thingys = require('./routes/thingys');
+const users = require('./routes/users');
 
 // port number
 const port = 3300;
@@ -33,7 +34,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 // body parser middleware
 app.use(bodyParser.json());
 
-app.use('/thingy', thingys);
+// passport middleware
+app.use(passport.initialize());
+app.use(passport.session());
+
+require('./config/passport')(passport);
+
+app.use('/user/thingy', thingys);
+app.use('/user', users);
 
 // index route
 app.get('/', (req, res) => {

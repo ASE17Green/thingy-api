@@ -1,11 +1,15 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const config = require('../config/database');
+const Schema = mongoose.Schema;
 
 // Thingy Schema
 const ThingySchema = mongoose.Schema({
+  user: {
+    type: Schema.Types.ObjectId, ref: 'User'
+  },
   date: {
-    type: Number
+    type: Date
   },
   temperature: {
     type: Number
@@ -33,17 +37,17 @@ module.exports.getThingyById = function(id, callback){
   Thingy.findById(id, callback);
 }
 
-module.exports.getThingyByName = function(name, callback){
-  const query = {name: name}
-  Thingy.findById(id, callback);
+module.exports.getThingysByUser = function(user, callback){
+  const query = {user: user}
+  Thingy.find(query, callback);
 }
 
-module.exports.addThingy = function(newThingy, callback){
-  bcrypt.genSalt(10, (err, salt) => {
-    bcrypt.hash(newThingy.password, salt, (err, hash) => {
-      if(err) throw err;
-      newThingy.password = hash;
-      newThingy.save(callback);
-    });
-  });
+module.exports.getLastThingyByUser = function(user, callback){
+  const query = {user: user}
+  Thingy.findOne(query, callback).sort({date:-1});
+}
+
+module.exports.removeThingysOfUser = function(user, callback){
+  const query = {user: user}
+  Thingy.remove(query, callback);
 }

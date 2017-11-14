@@ -5,39 +5,43 @@ const jwt = require('jsonwebtoken');
 
 const Thingy = require('../models/thingy');
 
-// get date
-router.get('/date', (req, res, next) => {
-  res.send('date');
+// add data to a user (user data added automaticaly)
+router.post('/data', passport.authenticate('jwt', {session:false}), (req, res, next) => {
+  Thingy.create(req.body, function (err, data) {
+    if (err) return next(err);
+    data.set({user: req.user});
+    data.save(function (err, userdata) {
+      if (err) return next(err);
+      res.send(userdata);
+    });
+  });
 });
 
-// get temperature
-router.get('/temperature', (req, res, next) => {
-  res.send('temperature');
+// delete all data of a user
+router.delete('/data', passport.authenticate('jwt', {session:false}), function(req, res, next) {
+  const user = req.user;
+  Thingy.removeThingysOfUser(user, (err, datas) =>  {
+    if (err) return next(err);
+    res.json({success: true, msg: 'All datas deleted'});
+  });
 });
 
-// get pressure
-router.get('/pressure', (req, res, next) => {
-  res.send('pressure');
+// get last data of a user
+router.get('/lastdata', passport.authenticate('jwt', {session:false}), (req, res) => {
+  const user = req.user;
+  Thingy.getLastThingyByUser(user, (err, data) => {
+    if (err) throw err;
+      res.json(data);
+  });
 });
 
-// get humidity
-router.get('/humidity', (req, res, next) => {
-  res.send('humidity');
-});
-
-// get color
-router.get('/color', (req, res, next) => {
-  res.send('color');
-});
-
-// get gas
-router.get('/gas', (req, res, next) => {
-  res.send('gas');
-});
-
-// get gravity
-router.get('/gravity', (req, res, next) => {
-  res.send('gravity');
+// get all data of user
+router.get('/data', passport.authenticate('jwt', {session:false}), function(req, res, next) {
+  const user = req.user;
+  Thingy.getThingysByUser(user, (err, datas) =>  {
+    if (err) return next(err);
+    res.json(datas);
+  });
 });
 
 module.exports = router;
