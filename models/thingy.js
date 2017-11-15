@@ -10,7 +10,7 @@ const ThingySchema = mongoose.Schema({
     ref: 'User'
   },
   thingyID:{
-    type: Number
+    type: String
   },
   date: {
     type: Date
