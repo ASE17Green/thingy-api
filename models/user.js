@@ -18,9 +18,17 @@ const UserSchema = mongoose.Schema({
     type: String,
     required: true
   },
-  thingys: {
-    type: [Schema.Types.ObjectId],
-    ref: 'Thingy'
+  thingysID: {
+    type: [Number]
+  },
+  thingysMinTemperature: {
+    type: [Number]
+  },
+  thingysMaxTemperature: {
+    type: [Number]
+  },
+  endLocation: {
+    type: Number
   }
 });
 

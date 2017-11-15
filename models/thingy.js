@@ -9,6 +9,9 @@ const ThingySchema = mongoose.Schema({
     type: Schema.Types.ObjectId,
     ref: 'User'
   },
+  thingyID:{
+    type: Number
+  },
   date: {
     type: Date
   },
@@ -34,21 +37,31 @@ const ThingySchema = mongoose.Schema({
 
 const Thingy = module.exports = mongoose.model('Thingy', ThingySchema);
 
+module.exports.checkTemperature = function(temperature, user){
+  // todo
+}
+
 module.exports.getThingyById = function(id, callback){
   Thingy.findById(id, callback);
 }
 
-module.exports.getThingysByUser = function(user, callback){
-  const query = {user: user}
-  Thingy.find(query, callback);
+module.exports.getCertainThingyDataByUser = function(user, thingyID, callback){
+  const query = {thingyID: thingyID}
+  Thingy.find({user: user}, function(err, docs){
+      Thingy.find(query, callback);
+  });
 }
 
-module.exports.getLastThingyByUser = function(user, callback){
-  const query = {user: user}
-  Thingy.findOne(query, callback).sort({date:-1});
+module.exports.getLastDataOfCertainThingyByUser = function(user, thingyID, callback){
+  const query = {thingyID: thingyID}
+  Thingy.find({user: user}, function(err, docs){
+      Thingy.findOne(query, callback).sort({date:-1});
+  });
 }
 
-module.exports.removeThingysOfUser = function(user, callback){
-  const query = {user: user}
-  Thingy.remove(query, callback);
+module.exports.removeCertainThingyDataOfUser = function(user, thingyID, callback){
+  const query = {thingyID: thingyID}
+  Thingy.find({user: user}, function(err, docs){
+      Thingy.remove(query, callback);
+  });
 }
