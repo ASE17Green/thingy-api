@@ -51,9 +51,12 @@ module.exports.checkTemperature = function(thingy, user, callback){
     }
     count++;
   });
-  if(thingy.temperature < user.thingysMinTemperature[position]){
+  if(thingy.temperature < user.thingysMinTemperature[position] && user.thingysMinTemperature[position] != null){
     console.log('Send an e-mail: Temperature too low');
-  } else if(thingy.temperature > user.thingysMaxTemperature[position]){
+    // todo: only send e-mail once
+    // user.thingysMinTemperature[position] = null;
+    // save somehow...
+  } else if(thingy.temperature > user.thingysMaxTemperature[position] && user.thingysMaxTemperature[position] != null){
     console.log('Send an e-mail: Temperature too high');
   }
 }
