@@ -6,11 +6,12 @@ const jwt = require('jsonwebtoken');
 const Thingy = require('../models/thingy');
 
 // add data to a user (user data added automaticaly)
-// /adddata/:thingyID ???? depends on how we send the data
 router.post('/adddata', passport.authenticate('jwt', {session:false}), (req, res, next) => {
   Thingy.create(req.body, function (err, data) {
-    Thingy.checkTemperature(req.body.temperature, req.user);
     if (err) return next(err);
+    // check temperature & location
+    Thingy.checkTemperature(req.body, req.user);
+    Thingy.checkLocation(req.body, req.user);
     data.set({user: req.user});
     data.save(function (err, userdata) {
       if (err) return next(err);

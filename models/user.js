@@ -19,7 +19,7 @@ const UserSchema = mongoose.Schema({
     required: true
   },
   thingysID: {
-    type: [Number]
+    type: [String]
   },
   thingysMinTemperature: {
     type: [Number]

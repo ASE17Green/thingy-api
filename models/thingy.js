@@ -10,7 +10,8 @@ const ThingySchema = mongoose.Schema({
     ref: 'User'
   },
   thingyID:{
-    type: String
+    type: String,
+    required: true
   },
   date: {
     type: Date
@@ -32,19 +33,43 @@ const ThingySchema = mongoose.Schema({
   },
   gravity: {
     type: Number
+  },
+  location: {
+    type: Number
   }
 });
 
 const Thingy = module.exports = mongoose.model('Thingy', ThingySchema);
 
-module.exports.checkTemperature = function(temperature, user){
-  // todo
+// check if temperature too low or high and sends an e-mail
+module.exports.checkTemperature = function(thingy, user, callback){
+  var position = 0;
+  var count = 0;
+  user.thingysID.forEach(function(thingyID){
+    if(thingyID == thingy.thingyID){
+      position = count;
+    }
+    count++;
+  });
+  if(thingy.temperature < user.thingysMinTemperature[position]){
+    console.log('Send an e-mail: Temperature too low');
+  } else if(thingy.temperature > user.thingysMaxTemperature[position]){
+    console.log('Send an e-mail: Temperature too high');
+  }
+}
+
+// check if package arrived and sends an e-mail
+module.exports.checkLocation = function(thingy, user, callback){
+  if(thingy.location == user.endLocation && user.endLocation != null){
+    console.log('Send an e-mail: Package arrived!');
+  }
 }
 
 module.exports.getThingyById = function(id, callback){
   Thingy.findById(id, callback);
 }
 
+// returns all data of a thingy for a certain user
 module.exports.getCertainThingyDataByUser = function(user, thingyID, callback){
   const query = {thingyID: thingyID}
   Thingy.find({user: user}, function(err, docs){
@@ -52,6 +77,7 @@ module.exports.getCertainThingyDataByUser = function(user, thingyID, callback){
   });
 }
 
+// returns last data of a thingy for a certain user
 module.exports.getLastDataOfCertainThingyByUser = function(user, thingyID, callback){
   const query = {thingyID: thingyID}
   Thingy.find({user: user}, function(err, docs){
@@ -59,6 +85,7 @@ module.exports.getLastDataOfCertainThingyByUser = function(user, thingyID, callb
   });
 }
 
+// delets all data of a thingy for a certain user
 module.exports.removeCertainThingyDataOfUser = function(user, thingyID, callback){
   const query = {thingyID: thingyID}
   Thingy.find({user: user}, function(err, docs){
