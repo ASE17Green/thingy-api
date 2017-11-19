@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const config = require('../config/database');
+const User = require('../models/user');
 const Schema = mongoose.Schema;
 
 // Thingy Schema
@@ -53,19 +54,47 @@ module.exports.checkTemperature = function(thingy, user, callback){
   });
   if(thingy.temperature < user.thingysMinTemperature[position] && user.thingysMinTemperature[position] != null){
     console.log('Send an e-mail: Temperature too low');
-    // todo: only send e-mail once
-    // user.thingysMinTemperature[position] = null;
-    // save somehow...
+    // reset temperature to send e-mail only once
+    Thingy.resetTemperature(user, position);
   } else if(thingy.temperature > user.thingysMaxTemperature[position] && user.thingysMaxTemperature[position] != null){
     console.log('Send an e-mail: Temperature too high');
+    // reset temperature to send e-mail only once
+    Thingy.resetTemperature(user, position);
   }
+}
+
+// resets the temperature bounds defined by a user for a thingy
+module.exports.resetTemperature = function(user, position, err){
+  user.thingysMinTemperature[position] = null;
+  user.thingysMaxTemperature[position] = null;
+  User.findByIdAndUpdate(user.id, user, function (err, user) {
+      if (err) return next(err);
+  });
 }
 
 // check if package arrived and sends an e-mail
 module.exports.checkLocation = function(thingy, user, callback){
-  if(thingy.location == user.endLocation && user.endLocation != null){
+  var position = 0;
+  var count = 0;
+  user.thingysID.forEach(function(thingyID){
+    if(thingyID == thingy.thingyID){
+      position = count;
+    }
+    count++;
+  });
+  if(thingy.location == user.endLocations[position] && user.endLocations[position] != null){
     console.log('Send an e-mail: Package arrived!');
+    // reset temperature to send e-mail only once
+    Thingy.resetEndLocation(user, position);
   }
+}
+
+// resets the endlocation of a thingy defined by a user
+module.exports.resetEndLocation = function(user, position, err){
+  user.endLocations[position] = null;
+  User.findByIdAndUpdate(user.id, user, function (err, user) {
+      if (err) return next(err);
+  });
 }
 
 module.exports.getThingyById = function(id, callback){
