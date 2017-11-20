@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const config = require('../config/database');
 const User = require('../models/user');
+const nodemailer = require('nodemailer');
 const Schema = mongoose.Schema;
 
 // Thingy Schema
@@ -53,11 +54,11 @@ module.exports.checkTemperature = function(thingy, user, callback){
     count++;
   });
   if(thingy.temperature < user.thingysMinTemperature[position] && user.thingysMinTemperature[position] != null){
-    console.log('Send an e-mail: Temperature too low');
+    Thingy.sendEMail(user, 'Temperature of thingy '+thingy.thingyID+' is too low!');
     // reset temperature to send e-mail only once
     Thingy.resetTemperature(user, position);
   } else if(thingy.temperature > user.thingysMaxTemperature[position] && user.thingysMaxTemperature[position] != null){
-    console.log('Send an e-mail: Temperature too high');
+    Thingy.sendEMail(user, 'Temperature of thingy '+thingy.thingyID+' is too high!');
     // reset temperature to send e-mail only once
     Thingy.resetTemperature(user, position);
   }
@@ -83,7 +84,7 @@ module.exports.checkLocation = function(thingy, user, callback){
     count++;
   });
   if(thingy.location == user.endLocations[position] && user.endLocations[position] != null){
-    console.log('Send an e-mail: Package arrived!');
+    Thingy.sendEMail(user, 'Thingy '+thingy.thingyID+' arrived!');
     // reset temperature to send e-mail only once
     Thingy.resetEndLocation(user, position);
   }
@@ -95,6 +96,30 @@ module.exports.resetEndLocation = function(user, position, err){
   User.findByIdAndUpdate(user.id, user, function (err, user) {
       if (err) return next(err);
   });
+}
+
+// send an e-mail
+module.exports.sendEMail = function(user, message, err){
+  var transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'thingy.green@gmail.com',
+      pass: 'thingysareamazing'
+    }
+  });
+  var mailOptions = {
+    from: 'thingy.green@gmail.com', // sender address
+    to: user.email, // receiver
+    subject: 'Thingy Notification', // subject line
+    text: message  // message
+  };
+  transporter.sendMail(mailOptions, function(error, info){
+    if(error){
+        console.log(error);
+    }else{
+        console.log('Message sent: '+message);
+    };
+});
 }
 
 module.exports.getThingyById = function(id, callback){
