@@ -45,29 +45,25 @@ const Thingy = module.exports = mongoose.model('Thingy', ThingySchema);
 
 // check if temperature too low or high and sends an e-mail
 module.exports.checkTemperature = function(thingy, user, callback){
-  var position = 0;
-  var count = 0;
-  user.thingysID.forEach(function(thingyID){
-    if(thingyID == thingy.thingyID){
-      position = count;
+  var position = findPosition(thingy, user);
+  // check if temperature message already sent or at thingy at end location
+  if(!user.thingysTemperatureMessageSent[position] && user.endLocations[position] != null){
+    // check for temperature borders
+    if(thingy.temperature < user.thingysMinTemperature[position]){
+      Thingy.sendEMail(user, 'Temperature of thingy '+thingy.thingyID+' is too low!');
+      // sets the temperature message to send e-mail only once
+      Thingy.setTemperatureMessageSent(user, position);
+    } else if(thingy.temperature > user.thingysMaxTemperature[position]){
+      Thingy.sendEMail(user, 'Temperature of thingy '+thingy.thingyID+' is too high!');
+      // sets the temperature message to send e-mail only once
+      Thingy.setTemperatureMessageSent(user, position);
     }
-    count++;
-  });
-  if(thingy.temperature < user.thingysMinTemperature[position] && user.thingysMinTemperature[position] != null){
-    Thingy.sendEMail(user, 'Temperature of thingy '+thingy.thingyID+' is too low!');
-    // reset temperature to send e-mail only once
-    Thingy.resetTemperature(user, position);
-  } else if(thingy.temperature > user.thingysMaxTemperature[position] && user.thingysMaxTemperature[position] != null){
-    Thingy.sendEMail(user, 'Temperature of thingy '+thingy.thingyID+' is too high!');
-    // reset temperature to send e-mail only once
-    Thingy.resetTemperature(user, position);
   }
 }
 
-// resets the temperature bounds defined by a user for a thingy
-module.exports.resetTemperature = function(user, position, err){
-  user.thingysMinTemperature[position] = null;
-  user.thingysMaxTemperature[position] = null;
+// sets the temperature message to true for a thingy of a user
+module.exports.setTemperatureMessageSent = function(user, position, err){
+  user.thingysTemperatureMessageSent[position] = true;
   User.findByIdAndUpdate(user.id, user, function (err, user) {
       if (err) return next(err);
   });
@@ -75,14 +71,8 @@ module.exports.resetTemperature = function(user, position, err){
 
 // check if package arrived and sends an e-mail
 module.exports.checkLocation = function(thingy, user, callback){
-  var position = 0;
-  var count = 0;
-  user.thingysID.forEach(function(thingyID){
-    if(thingyID == thingy.thingyID){
-      position = count;
-    }
-    count++;
-  });
+  var position = findPosition(thingy, user);
+    console.log(position);
   if(thingy.location == user.endLocations[position] && user.endLocations[position] != null){
     Thingy.sendEMail(user, 'Thingy '+thingy.thingyID+' arrived!');
     // reset temperature to send e-mail only once
@@ -90,9 +80,10 @@ module.exports.checkLocation = function(thingy, user, callback){
   }
 }
 
-// resets the endlocation of a thingy defined by a user
+// resets the endlocation and messaging of a thingy defined by a user
 module.exports.resetEndLocation = function(user, position, err){
   user.endLocations[position] = null;
+  user.thingysTemperatureMessageSent[position] = false; // message of temperature also reset
   User.findByIdAndUpdate(user.id, user, function (err, user) {
       if (err) return next(err);
   });
@@ -120,6 +111,19 @@ module.exports.sendEMail = function(user, message, err){
         console.log('Message sent: '+message);
     };
 });
+}
+
+// find position of thingy in user array
+function findPosition(thingy, user) {
+  var position = 0;
+  var count = 0;
+  user.thingysID.forEach(function(thingyID){
+    if(thingyID == thingy.thingyID){
+      position = count;
+    }
+    count++;
+  });
+  return position;
 }
 
 module.exports.getThingyById = function(id, callback){
