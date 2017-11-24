@@ -58,7 +58,11 @@ router.delete('/delete', passport.authenticate('jwt', {session:false}), (req, re
 router.put('/update', passport.authenticate('jwt', {session: false}), (req, res, next) => {
     User.findByIdAndUpdate(req.user.id, req.body, function (err, user) {
         if (err) return next(err);
-        res.json({success: true, msg: 'User updated'});
+        res.json({
+          success: true,
+          msg: 'User updated',
+          user: req.body
+        });
     });
 });
 
