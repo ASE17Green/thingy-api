@@ -27,6 +27,9 @@ const UserSchema = mongoose.Schema({
   thingysMaxTemperature: {
     type: [Number]
   },
+  thingysTemperatureMessageSent: {
+    type: [Boolean]
+  },
   endLocations: {
     type: [Number]
   }
