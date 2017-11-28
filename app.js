@@ -45,7 +45,7 @@ app.use('/user', users);
 
 // index route
 app.get('/', (req, res) => {
-  res.send('Invalide Endpoint');
+  res.send('Invalide Endpoint :)');
 });
 
 // start server
