@@ -27,16 +27,49 @@ const ThingySchema = mongoose.Schema({
   humidity: {
     type: Number
   },
-  color: {
+  eco2: {
     type: Number
   },
-  gas: {
+  tvoc: {
     type: Number
   },
-  gravity: {
+  colorRed: {
     type: Number
   },
-  location: {
+  colorGreen: {
+    type: Number
+  },
+  colorBlue: {
+    type: Number
+  },
+  colorAlpha: {
+    type: Number
+  },
+  button: {
+    type: Number
+  },
+  tapDirection: {
+    type: Number
+  },
+  tapCount: {
+    type: Number
+  },
+  orientation: {
+    type: Number
+  },
+  gyroscopeX: {
+    type: Number
+  },
+  gyroscopeY: {
+    type: Number
+  },
+  gyroscopeZ: {
+    type: Number
+  },
+  latitude: {
+    type: Number
+  },
+  longitude: {
     type: Number
   }
 });
@@ -44,7 +77,8 @@ const ThingySchema = mongoose.Schema({
 const Thingy = module.exports = mongoose.model('Thingy', ThingySchema);
 
 // check if temperature too low or high and sends an e-mail
-module.exports.checkTemperature = function(thingy, user, callback){
+module.exports.checkTemperature = function(thingy, callback){
+  var user = thingy.user;
   var position = findPosition(thingy, user);
   // check if temperature message already sent or at thingy at end location
   if(!user.thingysTemperatureMessageSent[position] && user.endLocations[position] != null){
@@ -70,9 +104,9 @@ module.exports.setTemperatureMessageSent = function(user, position, err){
 }
 
 // check if package arrived and sends an e-mail
-module.exports.checkLocation = function(thingy, user, callback){
+module.exports.checkLocation = function(thingy, callback){
+  var user = thingy.user;
   var position = findPosition(thingy, user);
-    console.log(position);
   if(thingy.location == user.endLocations[position] && user.endLocations[position] != null){
     Thingy.sendEMail(user, 'Thingy '+thingy.thingyID+' arrived!');
     // reset temperature to send e-mail only once
@@ -117,7 +151,7 @@ module.exports.sendEMail = function(user, message, err){
 function findPosition(thingy, user) {
   var position = 0;
   var count = 0;
-  user.thingysID.forEach(function(thingyID){
+  user.thingysID.forEach(function(thingyID, err){
     if(thingyID == thingy.thingyID){
       position = count;
     }
@@ -128,6 +162,11 @@ function findPosition(thingy, user) {
 
 module.exports.getThingyById = function(id, callback){
   Thingy.findById(id, callback);
+}
+
+module.exports.getUserOfThingy = function(thingyID, callback){
+  const query = {thingysID: thingyID}
+  User.findOne(query, callback);
 }
 
 // returns all data of a thingy for a certain user
