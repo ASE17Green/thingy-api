@@ -11,7 +11,7 @@ router.post('/register', (req, res, next) => {
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
-    thingys: req.body.thingys
+    //userThingys: req.body.userThingys
   });
   // add only if doesn't exits
   User.addUser(newUser, (err, user) =>{
@@ -38,14 +38,6 @@ router.post('/register', (req, res, next) => {
   });
 });
 
-// get all users (only for development)
-//router.get('/', function(req, res, next) {
-//  User.find(function (err, users) {
-//    if (err) return next(err);
-//    res.json(users);
-//  });
-//});
-
 // delete a user (with authentication)
 router.delete('/delete', passport.authenticate('jwt', {session:false}), (req, res, next) => {
   User.findByIdAndRemove(req.user.id, req.body, function (err, user) {
@@ -56,13 +48,9 @@ router.delete('/delete', passport.authenticate('jwt', {session:false}), (req, re
 
 // update a user (with authentication)
 router.put('/update', passport.authenticate('jwt', {session: false}), (req, res, next) => {
-    User.findByIdAndUpdate(req.user.id, req.body, function (err, user) {
+    User.findByIdAndUpdate(req.user.id, req.body, {new: true}, function (err, user) {
         if (err) return next(err);
-        res.json({
-          success: true,
-          msg: 'User updated',
-          user: req.body
-        });
+        res.json(user);
     });
 });
 
