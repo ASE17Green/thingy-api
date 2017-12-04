@@ -4,6 +4,7 @@ const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const config = require('../config/database');
 const User = require('../models/user');
+const UserThingy = require('../models/userthingy');
 
 // register
 router.post('/register', (req, res, next) => {
@@ -11,7 +12,7 @@ router.post('/register', (req, res, next) => {
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
-    //userThingys: req.body.userThingys
+    userThingys: [null]
   });
   // add only if doesn't exits
   User.addUser(newUser, (err, user) =>{
@@ -42,12 +43,24 @@ router.post('/register', (req, res, next) => {
 router.delete('/delete', passport.authenticate('jwt', {session:false}), (req, res, next) => {
   User.findByIdAndRemove(req.user.id, req.body, function (err, user) {
     if (err) return next(err);
-    res.json({success: true, msg: 'User deleted'});
+    // delete all the thingys of a user
+    user.userThingys.forEach(function(thingy) {
+      UserThingy.removeUserThingyByID(thingy, function (err) {
+        if (err) return next(err);
+      });
+    });
+    res.json({success: true, msg: 'User & thingys deleted'});
   });
+});
+
+// profile of a user (with authentication)
+router.get('/profile', passport.authenticate('jwt', {session:false}), (req, res, next) => {
+  res.json({user: req.user});
 });
 
 // update a user (with authentication)
 router.put('/update', passport.authenticate('jwt', {session: false}), (req, res, next) => {
+    req.body.userThingys = req.user.userThingys; // makes sure a user can't add thingys manually
     User.findByIdAndUpdate(req.user.id, req.body, {new: true}, function (err, user) {
         if (err) return next(err);
         res.json(user);
@@ -84,11 +97,6 @@ router.post('/authenticate', (req, res, next) => {
       }
     });
   });
-});
-
-// profile function with limited authorization
-router.get('/profile', passport.authenticate('jwt', {session:false}), (req, res, next) => {
-  res.json({user: req.user});
 });
 
 module.exports = router;

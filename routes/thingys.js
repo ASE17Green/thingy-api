@@ -26,9 +26,9 @@ router.post('/adddata', (req, res, next) => {
         tapDirection: req.body.tapDirection,
         tapCount: req.body.tapCount,
         orientation: req.body.orientation,
-        gyroscopeX: req.body.gyroscopeX,
-        gyroscopeY: req.body.gyroscopeY,
-        gyroscopeZ: req.body.gyroscopeZ,
+        accelerometerX: req.body.accelerometerX,
+        accelerometerY: req.body.accelerometerY,
+        accelerometerZ: req.body.accelerometerZ,
         latitude: req.body.latitude,
         longitude: req.body.longitude
     });

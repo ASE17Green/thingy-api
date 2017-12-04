@@ -18,21 +18,9 @@ const UserSchema = mongoose.Schema({
     type: String,
     required: true
   },
-  thingysID: {
+  userThingys: {
     type: [String]
   },
-  thingysMinTemperature: {
-    type: [Number]
-  },
-  thingysMaxTemperature: {
-    type: [Number]
-  },
-  thingysTemperatureMessageSent: {
-    type: [Boolean]
-  },
-  endLocations: {
-    type: [Number]
-  }
 });
 
 UserSchema.plugin(uniqueValidator, { message: 'Error, e-mail already in use' });

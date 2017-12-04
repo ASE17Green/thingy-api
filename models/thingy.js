@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const config = require('../config/database');
 const User = require('../models/user');
+const UserThingy = require('../models/userthingy');
 const nodemailer = require('nodemailer');
 const Schema = mongoose.Schema;
 
@@ -57,13 +58,13 @@ const ThingySchema = mongoose.Schema({
   orientation: {
     type: Number
   },
-  gyroscopeX: {
+  accelerometerX: {
     type: Number
   },
-  gyroscopeY: {
+  accelerometerY: {
     type: Number
   },
-  gyroscopeZ: {
+  accelerometerZ: {
     type: Number
   },
   latitude: {
@@ -78,53 +79,55 @@ const Thingy = module.exports = mongoose.model('Thingy', ThingySchema);
 
 // check if temperature too low or high and sends an e-mail
 module.exports.checkTemperature = function(thingy, callback){
-  var user = thingy.user;
-  var position = findPosition(thingy, user);
-  // check if temperature message already sent or at thingy at end location
-  if(!user.thingysTemperatureMessageSent[position] && user.endLocations[position] != null){
-    // check for temperature borders
-    if(thingy.temperature < user.thingysMinTemperature[position]){
-      Thingy.sendEMail(user, 'Temperature of thingy '+thingy.thingyID+' is too low!');
-      // sets the temperature message to send e-mail only once
-      Thingy.setTemperatureMessageSent(user, position);
-    } else if(thingy.temperature > user.thingysMaxTemperature[position]){
-      Thingy.sendEMail(user, 'Temperature of thingy '+thingy.thingyID+' is too high!');
-      // sets the temperature message to send e-mail only once
-      Thingy.setTemperatureMessageSent(user, position);
+  UserThingy.getUserThingyByID(thingy.thingyID, function (err, userThingy) {
+    if (err) return next(err);
+    // check if temperature message already sent or at thingy at end location
+    if(!userThingy.thingyTemperatureMessageSent && !userThingy.packageArrivedMessageSent){
+      // check for temperature borders
+      if(thingy.temperature < userThingy.thingyMinTemperature){
+        Thingy.sendEMail(thingy, 'Temperature of thingy '+thingy.thingyID+' is too low!');
+        // sets the temperature message to send e-mail only once
+        Thingy.setTemperatureMessageSent(userThingy);
+      } else if(thingy.temperature > userThingy.thingyMaxTemperature){
+        Thingy.sendEMail(thingy, 'Temperature of thingy '+thingy.thingyID+' is too high!');
+        // sets the temperature message to send e-mail only once
+        Thingy.setTemperatureMessageSent(userThingy);
+      }
     }
-  }
+  });
 }
 
 // sets the temperature message to true for a thingy of a user
-module.exports.setTemperatureMessageSent = function(user, position, err){
-  user.thingysTemperatureMessageSent[position] = true;
-  User.findByIdAndUpdate(user.id, user, function (err, user) {
-      if (err) return next(err);
+module.exports.setTemperatureMessageSent = function(userThingy, err){
+  userThingy.thingyTemperatureMessageSent = true;
+  UserThingy.findByIdAndUpdate(userThingy.id, userThingy, function (err, user) {
+    if (err) return next(err);
   });
 }
 
 // check if package arrived and sends an e-mail
 module.exports.checkLocation = function(thingy, callback){
-  var user = thingy.user;
-  var position = findPosition(thingy, user);
-  if(thingy.location == user.endLocations[position] && user.endLocations[position] != null){
-    Thingy.sendEMail(user, 'Thingy '+thingy.thingyID+' arrived!');
-    // reset temperature to send e-mail only once
-    Thingy.resetEndLocation(user, position);
-  }
+  UserThingy.getUserThingyByID(thingy.thingyID, function (err, userThingy) {
+    if (err) return next(err);
+    if(thingy.latitude == userThingy.endLatitude && thingy.longitude == userThingy.endLongitude && !userThingy.packageArrivedMessageSent){
+      Thingy.sendEMail(thingy, 'Thingy '+thingy.thingyID+' arrived!');
+      // reset temperature to send e-mail only once
+      Thingy.setPackageArrivedMessageSent(userThingy);
+    }
+  });
 }
 
-// resets the endlocation and messaging of a thingy defined by a user
-module.exports.resetEndLocation = function(user, position, err){
-  user.endLocations[position] = null;
-  user.thingysTemperatureMessageSent[position] = false; // message of temperature also reset
-  User.findByIdAndUpdate(user.id, user, function (err, user) {
-      if (err) return next(err);
+// sets the "package arrived" message to true for a thingy of a user
+module.exports.setPackageArrivedMessageSent = function(userThingy, err){
+  userThingy.packageArrivedMessageSent = true;
+  UserThingy.findByIdAndUpdate(userThingy.id, userThingy, function (err, user) {
+    if (err) return next(err);
   });
 }
 
 // send an e-mail
-module.exports.sendEMail = function(user, message, err){
+module.exports.sendEMail = function(thingy, message, err){
+  let user = thingy.user;
   var transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -144,20 +147,7 @@ module.exports.sendEMail = function(user, message, err){
     }else{
         console.log('Message sent: '+message);
     };
-});
-}
-
-// find position of thingy in user array
-function findPosition(thingy, user) {
-  var position = 0;
-  var count = 0;
-  user.thingysID.forEach(function(thingyID, err){
-    if(thingyID == thingy.thingyID){
-      position = count;
-    }
-    count++;
   });
-  return position;
 }
 
 module.exports.getThingyById = function(id, callback){
@@ -165,7 +155,7 @@ module.exports.getThingyById = function(id, callback){
 }
 
 module.exports.getUserOfThingy = function(thingyID, callback){
-  const query = {thingysID: thingyID}
+  const query = {userThingys: thingyID}
   User.findOne(query, callback);
 }
 
