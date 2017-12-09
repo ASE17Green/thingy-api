@@ -35,9 +35,11 @@ router.post('/adddata', (req, res, next) => {
     if(newThingy.user == null){
       res.json({success: false, msg: 'No user found that has the thingyID: '+newThingy.thingyID});
     } else {
+      // todo: if thingy arrived post no more data
       Thingy.create(newThingy, function (err, data) {
         if (err) return next(err);
-        // check temperature & location
+        // check start, temperature & location
+        Thingy.checkDeliveryStart(newThingy);
         Thingy.checkTemperature(newThingy);
         Thingy.checkLocation(newThingy);
         res.json(data);
