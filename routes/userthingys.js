@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const config = require('../config/database');
 const User = require('../models/user');
 const UserThingy = require('../models/userthingy');
+const Thingy = require('../models/thingy');
 
 // add a userThingy to the user
 router.post('/addUserThingy', passport.authenticate('jwt', {session:false}), (req, res, next) => {
@@ -66,6 +67,10 @@ router.delete('/delete/:userThingyID', passport.authenticate('jwt', {session: fa
           newUser.userThingys.splice(index, 1);
           User.findByIdAndUpdate(req.user.id, newUser, {new: true}, function (err, user) {
               if (err) return next(err);
+              // delete data from thingys db
+              Thingy.removeCertainThingyDataOfUser(newUser, req.params.userThingyID, (err, datas) =>  {
+                if (err) return next(err);
+              });
           });
           res.json({success: true, msg: 'UserThingy deleted: '+req.params.userThingyID});
         });
