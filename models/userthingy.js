@@ -30,6 +30,9 @@ const UserThingySchema = mongoose.Schema({
   },
   packageArrivedMessageSent: {
     type: Boolean
+  },
+  packageStartedMessageSent: {
+    type: Boolean
   }
 });
 

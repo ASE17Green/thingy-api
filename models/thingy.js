@@ -77,6 +77,26 @@ const ThingySchema = mongoose.Schema({
 
 const Thingy = module.exports = mongoose.model('Thingy', ThingySchema);
 
+// check if delivery started (starts as soon as first post is made)
+module.exports.checkDeliveryStart = function(thingy, callback){
+  UserThingy.getUserThingyByID(thingy.thingyID, function (err, userThingy) {
+    if (err) return next(err);
+    if(!userThingy.packageStartedMessageSent){
+      Thingy.sendEMail(thingy, 'Thingy '+thingy.thingyID+' is now on the way to you!');
+      Thingy.setDeliveryStartMessageSent(userThingy);
+    }
+  });
+}
+
+// sets the "delivery start" message to true for a thingy of a user
+module.exports.setDeliveryStartMessageSent = function(userThingy, err){
+  userThingy.packageStartedMessageSent = true;
+  UserThingy.findByIdAndUpdate(userThingy.id, userThingy, function (err, user) {
+    if (err) return next(err);
+  });
+}
+
+
 // check if temperature too low or high and sends an e-mail
 module.exports.checkTemperature = function(thingy, callback){
   UserThingy.getUserThingyByID(thingy.thingyID, function (err, userThingy) {
@@ -86,11 +106,9 @@ module.exports.checkTemperature = function(thingy, callback){
       // check for temperature borders
       if(thingy.temperature < userThingy.thingyMinTemperature){
         Thingy.sendEMail(thingy, 'Temperature of thingy '+thingy.thingyID+' is too low!');
-        // sets the temperature message to send e-mail only once
         Thingy.setTemperatureMessageSent(userThingy);
       } else if(thingy.temperature > userThingy.thingyMaxTemperature){
         Thingy.sendEMail(thingy, 'Temperature of thingy '+thingy.thingyID+' is too high!');
-        // sets the temperature message to send e-mail only once
         Thingy.setTemperatureMessageSent(userThingy);
       }
     }
@@ -111,7 +129,6 @@ module.exports.checkLocation = function(thingy, callback){
     if (err) return next(err);
     if(thingy.latitude == userThingy.endLatitude && thingy.longitude == userThingy.endLongitude && !userThingy.packageArrivedMessageSent){
       Thingy.sendEMail(thingy, 'Thingy '+thingy.thingyID+' arrived!');
-      // reset temperature to send e-mail only once
       Thingy.setPackageArrivedMessageSent(userThingy);
     }
   });

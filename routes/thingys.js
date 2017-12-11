@@ -4,6 +4,7 @@ const passport = require('passport');
 const jwt = require('jsonwebtoken');
 
 const Thingy = require('../models/thingy');
+const UserThingy = require('../models/userthingy');
 
 // add data to a user (user data added automaticaly)
 router.post('/adddata', (req, res, next) => {
@@ -35,12 +36,21 @@ router.post('/adddata', (req, res, next) => {
     if(newThingy.user == null){
       res.json({success: false, msg: 'No user found that has the thingyID: '+newThingy.thingyID});
     } else {
-      Thingy.create(newThingy, function (err, data) {
+      UserThingy.getUserThingyByID(newThingy.thingyID, function (err, userThingy) {
+        //if thingy arrived post no more data
         if (err) return next(err);
-        // check temperature & location
-        Thingy.checkTemperature(newThingy);
-        Thingy.checkLocation(newThingy);
-        res.json(data);
+        if(!userThingy.packageArrivedMessageSent){
+          Thingy.create(newThingy, function (err, data) {
+            if (err) return next(err);
+            // check start, temperature & location
+            Thingy.checkDeliveryStart(newThingy);
+            Thingy.checkTemperature(newThingy);
+            Thingy.checkLocation(newThingy);
+            res.json(data);
+          });
+        } else {
+          res.json({success: false, msg: 'Thingy: '+newThingy.thingyID+' arrived. No longer sending datas.'});
+        }
       });
     }
   });

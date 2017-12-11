@@ -17,6 +17,7 @@ router.post('/addUserThingy', passport.authenticate('jwt', {session:false}), (re
     endLatitude: req.body.endLatitude,
     endLongitude: req.body.endLongitude,
     packageArrivedMessageSent: false,
+    packageStartedMessageSent: false
   });
   UserThingy.create(newUserThingy, function (err, userThingy) {
     if (err){
