@@ -12,7 +12,7 @@ router.post('/register', (req, res, next) => {
     name: req.body.name,
     email: req.body.email,
     password: req.body.password,
-    userThingys: [null]
+    userThingys: []
   });
   // add only if doesn't exits
   User.addUser(newUser, (err, user) =>{
