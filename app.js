@@ -21,6 +21,7 @@ const app = express();
 
 const thingys = require('./routes/thingys');
 const users = require('./routes/users');
+const userThingys = require('./routes/userthingys');
 
 // port number
 const port = 3300;
@@ -42,10 +43,11 @@ require('./config/passport')(passport);
 
 app.use('/user/thingy', thingys);
 app.use('/user', users);
+app.use('/user', userThingys);
 
 // index route
 app.get('/', (req, res) => {
-  res.send('Invalide Endpoint');
+  res.send('Invalide Endpoint :)');
 });
 
 // start server
