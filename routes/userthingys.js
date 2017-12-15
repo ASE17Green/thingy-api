@@ -38,6 +38,18 @@ router.post('/addUserThingy', passport.authenticate('jwt', {session:false}), (re
   });
 });
 
+// get all userThingys (with authentication)
+router.get('/userThingy/', passport.authenticate('jwt', {session: false}), (req, res, next) => {
+    UserThingy.getAllUserThingys(req.user.id, function (err, userThingys) {
+      if (err) return next(err);
+      if(userThingys == null){
+        res.json({success: false, msg: 'No Thingy found'});
+      }else {
+        res.json(userThingys);
+      }
+    });
+});
+
 // get a userThingy (with authentication)
 router.get('/userThingy/:userThingyID', passport.authenticate('jwt', {session: false}), (req, res, next) => {
     UserThingy.getUserThingyByID(req.params.userThingyID, function (err, userThingy) {
