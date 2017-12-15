@@ -128,10 +128,10 @@ module.exports.checkLocation = function(thingy, callback){
   UserThingy.getUserThingyByID(thingy.thingyID, function (err, userThingy) {
     if (err) return next(err);
     var coef = 0.000089;
-    if(thingy.latitude < userThingy.endLatitude + coef/5
-       && thingy.latitude > userThingy.endLatitude - coef/5
-       && thingy.longitude < userThingy.endLongitude + coef/Math.cos(thingy.latitude*0.018)
-       && thingy.longitude > userThingy.endLongitude - coef/Math.cos(thingy.latitude*0.018)
+    if(thingy.latitude < userThingy.endLatitude + coef * 2
+       && thingy.latitude > userThingy.endLatitude - coef * 2
+       && thingy.longitude < userThingy.endLongitude + coef/Math.cos(thingy.endLatitude*0.018)
+       && thingy.longitude > userThingy.endLongitude - coef/Math.cos(thingy.endLatitude*0.018)
        && !userThingy.packageArrivedMessageSent){
       Thingy.sendEMail(thingy, 'Thingy '+thingy.thingyID+' arrived!');
       Thingy.setPackageArrivedMessageSent(userThingy);
