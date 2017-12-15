@@ -40,10 +40,16 @@ UserThingySchema.plugin(uniqueValidator, { message: 'Error, thingy already in us
 
 const UserThingy = module.exports = mongoose.model('UserThingy', UserThingySchema);
 
-// delets a userthingy
+// get a userthingy
 module.exports.getUserThingyByID = function(userThingyID, callback){
   const query = {thingyID: userThingyID}
   UserThingy.findOne(query, callback);
+}
+
+// get all userthingys of a user
+module.exports.getAllUserThingys = function(userID, callback){
+  const query = {userID: userID}
+  UserThingy.find(query, callback);
 }
 
 // delets a userthingy
