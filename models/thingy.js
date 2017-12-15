@@ -128,10 +128,10 @@ module.exports.checkLocation = function(thingy, callback){
   UserThingy.getUserThingyByID(thingy.thingyID, function (err, userThingy) {
     if (err) return next(err);
     var coef = 0.000089;
-    console.log('less than upper lat: ' + thingy.latitude < userThingy.endLatitude + coef * 2);
-    console.log('more than lower lat: ' + thingy.latitude > userThingy.endLatitude - coef * 2);
-    console.log('less than upper lng: ' + thingy.longitude < userThingy.endLongitude + coef/Math.cos(thingy.endLatitude*0.018));
-    console.log('more than lower lng: ' + thingy.longitude > userThingy.endLongitude - coef/Math.cos(thingy.endLatitude*0.018));
+    console.log('less than upper lat: ' + thingy.latitude +' | ' + userThingy.endLatitude + coef * 2);
+    console.log('more than lower lat: ' + thingy.latitude +' | ' + userThingy.endLatitude - coef * 2);
+    console.log('less than upper lng: ' + thingy.longitude +' | ' + userThingy.endLongitude + coef/Math.cos(thingy.endLatitude*0.018));
+    console.log('more than lower lng: ' + thingy.longitude +' | ' + userThingy.endLongitude - coef/Math.cos(thingy.endLatitude*0.018));
     if(thingy.latitude < userThingy.endLatitude + coef * 2
        && thingy.latitude > userThingy.endLatitude - coef * 2
        && thingy.longitude < userThingy.endLongitude + coef/Math.cos(thingy.endLatitude*0.018)
