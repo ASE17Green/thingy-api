@@ -67,6 +67,9 @@ const ThingySchema = mongoose.Schema({
   accelerometerZ: {
     type: Number
   },
+  velocity: {
+    type: Number
+  },
   latitude: {
     type: Number
   },
