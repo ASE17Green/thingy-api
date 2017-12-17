@@ -30,6 +30,7 @@ router.post('/adddata', (req, res, next) => {
         accelerometerX: req.body.accelerometerX,
         accelerometerY: req.body.accelerometerY,
         accelerometerZ: req.body.accelerometerZ,
+        velocity: req.body.velocity,
         latitude: req.body.latitude,
         longitude: req.body.longitude
     });
